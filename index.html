@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MIAUMARKET</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="MIAUMARKET: ropa, calzado y accesorios de marca. Elige tu producto y pídelo por WhatsApp.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: sticky tienda header, short "cómo comprar" band, filter bar, product grid of tag-like cards, detail sheet */
+:root{
+  --bg:#eef3f3; --surface:#ffffff; --mist:#dfe8e8; --ink:#191e23; --muted:#5d6a6c;
+  --rose:#b85c5f; --rose-soft:#f6e4e3; --line:#d3dcdc; --wa:#1d8a4b; --wa-ink:#ffffff;
+  --display:"Young Serif", Georgia, "Times New Roman", serif;
+  --body:"Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --radius:14px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#121618; --surface:#1b2124; --mist:#243034; --ink:#eef2f2; --muted:#a3b0b2;
+  --rose:#e08f90; --rose-soft:#3a2627; --line:#2e383b; --wa:#2fa863; --wa-ink:#06140c; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121618; --surface:#1b2124; --mist:#243034; --ink:#eef2f2; --muted:#a3b0b2;
+  --rose:#e08f90; --rose-soft:#3a2627; --line:#2e383b; --wa:#2fa863; --wa-ink:#06140c; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:400 15px/1.5 var(--body);margin:0}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--surface)}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--rose);outline-offset:2px}
+
+/* header */
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--surface);border-bottom:1px solid var(--line)}
+.bar{display:flex;align-items:center;gap:12px;padding-block:10px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;min-width:0}
+.brand img{width:44px;height:44px;border-radius:12px;background:#dfe8e8}
+.brand b{font:400 22px/1 var(--display);letter-spacing:.01em}
+.brand small{display:block;font-size:12px;color:var(--muted);margin-top:3px}
+.bar .grow{flex:1}
+.btn-wa{display:inline-flex;align-items:center;gap:8px;background:var(--wa);color:var(--wa-ink);text-decoration:none;font-weight:600;
+  border-radius:999px;padding:9px 16px;border:0;font-family:inherit;font-size:14px;cursor:pointer;white-space:nowrap}
+.btn-wa svg{width:18px;height:18px;flex:none}
+.btn-wa:hover{filter:brightness(1.07)}
+
+/* intro */
+.intro{display:grid;grid-template-columns:1.1fr 1fr;gap:28px;align-items:center;padding-block:32px 20px}
+.intro h1{font:400 clamp(28px,4.4vw,44px)/1.1 var(--display);margin:0 0 10px;text-wrap:balance}
+.intro p{margin:0;color:var(--muted);max-width:46ch}
+.steps{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.steps li{display:grid;grid-template-columns:34px 1fr;gap:12px;align-items:start;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:12px 14px}
+.steps .n{width:34px;height:34px;border-radius:50%;background:var(--rose-soft);color:var(--rose);font:400 17px/34px var(--display);text-align:center}
+.steps b{display:block;font-weight:600}
+.steps span{color:var(--muted);font-size:14px}
+
+/* filters */
+.tools{position:sticky;top:calc(env(safe-area-inset-top,0px) + 65px);z-index:10;background:var(--bg);padding-block:12px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;border-bottom:1px solid var(--line)}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:7px 14px;font:500 14px var(--body);cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.chip .ct{opacity:.65;margin-left:4px;font-variant-numeric:tabular-nums}
+.search{flex:1;min-width:180px;display:flex}
+.search input{width:100%;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:9px 16px;font:inherit}
+.count{color:var(--muted);font-size:13px;padding-top:14px}
+
+/* grid */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:16px;padding-block:12px 40px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column;min-width:0}
+.card button.open{all:unset;cursor:pointer;display:block}
+.card button.open:focus-visible{outline:3px solid var(--rose);outline-offset:-3px}
+.ph{aspect-ratio:1/1;background:#ffffff;display:block;width:100%;max-width:100%}
+.ph img{width:100%;height:100%;object-fit:contain;display:block}
+.info{padding:12px 14px 14px;display:flex;flex-direction:column;gap:6px;flex:1}
+.code{font:600 11px/1 var(--body);letter-spacing:.08em;color:var(--rose)}
+.name{font-weight:600;line-height:1.3;margin:0;font-size:15px}
+.meta{display:flex;flex-wrap:wrap;gap:6px;font-size:13px;color:var(--muted)}
+.meta span{background:var(--mist);border-radius:6px;padding:2px 8px}
+.price{font:400 20px/1 var(--display);margin-top:auto;padding-top:6px;font-variant-numeric:tabular-nums}
+.price small{font:500 12px var(--body);color:var(--muted);margin-left:4px}
+.card .btn-wa{justify-content:center;margin:0 14px 14px;padding:9px 12px}
+.ph{position:relative}
+.tag{position:absolute;top:10px;left:10px;font:700 11px/1 var(--body);letter-spacing:.1em;padding:6px 10px;border-radius:6px;color:#fff}
+.tag.vendido{background:#b3261e}.tag.reservado{background:#a86b00}
+.card.is-vendido .ph img{opacity:.45;filter:grayscale(.7)}
+.card.is-vendido .price{text-decoration:line-through;color:var(--muted)}
+.btn-ghost{background:var(--mist);color:var(--ink)}
+.ship{padding-block:4px 20px}
+.ship h2{font:400 22px/1.2 var(--display);margin:0 0 12px}
+.ship-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.ship-item{display:grid;grid-template-columns:28px 1fr;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px;min-width:0}
+.ship-item svg{width:26px;height:26px;color:var(--rose)}
+.ship-item b{display:block;font-weight:600;margin-bottom:2px}
+.ship-item span{color:var(--muted);font-size:14px}
+@media (max-width:760px){.ship-grid{grid-template-columns:1fr}}
+.empty{padding:40px 0;text-align:center;color:var(--muted)}
+
+/* detail */
+dialog{border:0;padding:0;border-radius:18px;max-width:min(880px,calc(100vw - 24px));width:100%;background:var(--surface);color:var(--ink)}
+dialog::backdrop{background:rgba(10,14,16,.55)}
+.sheet{display:grid;grid-template-columns:1.1fr 1fr;min-width:0}
+.gal{background:#ffffff;display:flex;flex-direction:column;gap:8px;padding:12px;min-width:0}
+.gal .main{aspect-ratio:1/1;max-width:100%}
+.gal .main img{width:100%;height:100%;object-fit:contain}
+.thumbs{display:flex;gap:8px}
+.thumbs button{all:unset;cursor:pointer;width:64px;height:64px;border-radius:10px;overflow:hidden;border:2px solid #e3e9e9;background:#fff}
+.thumbs button[aria-current="true"]{border-color:#b85c5f}
+.thumbs img{width:100%;height:100%;object-fit:cover}
+.det{padding:22px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.det h2{font:400 26px/1.15 var(--display);margin:0;text-wrap:balance}
+.det dl{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:0}
+.det dt{color:var(--muted);font-size:13px;text-transform:uppercase;letter-spacing:.06em;padding-top:2px}
+.det dd{margin:0;font-weight:500}
+.det p{margin:0;color:var(--muted)}
+.det .price{font-size:28px}
+.close{position:absolute;top:10px;right:10px;width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-size:20px;cursor:pointer;line-height:1}
+
+footer{border-top:1px solid var(--line);background:var(--surface)}
+footer .wrap{padding-block:24px;display:flex;flex-wrap:wrap;gap:16px;justify-content:space-between;align-items:center;color:var(--muted);font-size:14px}
+
+@media (max-width:760px){
+  .intro{grid-template-columns:1fr;padding-block:22px 12px;gap:18px}
+  .sheet{grid-template-columns:1fr}
+  .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .info{padding:10px}
+  .name{font-size:14px}
+  .card .btn-wa{margin:0 10px 10px;font-size:13px;padding:8px 8px}
+  .card .btn-wa .lbl-long{display:none}
+  .bar .btn-wa .lbl-long{display:none}
+  .brand small{display:none}
+  .tools{top:calc(env(safe-area-inset-top,0px) + 65px)}
+}
+@media (prefers-reduced-motion:no-preference){.card{transition:transform .15s ease, box-shadow .15s ease}.card:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(20,30,32,.08)}}
+</style>
+</head>
+<body>
+
+
+<header>
+  <div class="wrap bar">
+    <a class="brand" href="#inicio" aria-label="MIAUMARKET, inicio">
+      <img src="img/logo.png" alt="">
+      <span><b>MIAUMARKET</b><small>Ropa · Calzado · Accesorios</small></span>
+    </a>
+    <span class="grow"></span>
+    <a class="btn-wa" id="waTop" href="#" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2l-.5-.3z"/></svg>
+      <span>Escríbenos<span class="lbl-long"> por WhatsApp</span></span>
+    </a>
+  </div>
+</header>
+
+<main id="inicio">
+  <section class="wrap intro">
+    <div>
+      <h1>Ropa, calzado y accesorios de marca</h1>
+      <p>Prendas para bebés, niños, juveniles y adultos, zapatillas y artículos para el hogar. Cada producto tiene su código: elige el tuyo y pídelo directo por WhatsApp.</p>
+    </div>
+    <ol class="steps" aria-label="Cómo comprar">
+      <li><span class="n">1</span><div><b>Elige tu producto</b><span>Filtra por sección o busca por marca, talla o código.</span></div></li>
+      <li><span class="n">2</span><div><b>Toca «Pedir por WhatsApp»</b><span>Se abre el chat con el código y la talla ya escritos.</span></div></li>
+      <li><span class="n">3</span><div><b>Coordina entrega y pago</b><span>Te confirmamos disponibilidad y acordamos dónde y cómo recibirlo.</span></div></li>
+    </ol>
+  </section>
+
+  <section class="wrap ship" aria-labelledby="shipT">
+    <h2 id="shipT">Entregas y envíos</h2>
+    <div class="ship-grid">
+      <div class="ship-item">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
+        <div><b>La Paz: míralo antes de comprar</b><span>Los productos están en La Paz. Puedes verlos con cita previa en nuestro domicilio o en un punto de encuentro que acordemos.</span></div>
+      </div>
+      <div class="ship-item">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M4 7h16v13H4zM4 7l2-3h12l2 3M9 11h6"/></svg>
+        <div><b>Cochabamba: entrega coordinada</b><span>También entregamos en Cochabamba. Coordinamos fecha y lugar por WhatsApp.</span></div>
+      </div>
+      <div class="ship-item">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M3 6h11v10H3zM14 10h4l3 3v3h-7M7.5 19a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zM17.5 19a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z"/></svg>
+        <div><b>Envíos a todo el país</b><span>Enviamos a cualquier departamento, previa coordinación y depósito.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <div class="tools">
+      <div class="chips" role="group" aria-label="Secciones" id="chips"></div>
+      <label class="search"><span class="sr" hidden>Buscar</span>
+        <input id="q" type="search" placeholder="Buscar: buzo, Adidas, 4T, MM-047…" autocomplete="off"></label>
+    </div>
+    <div class="count" id="count" aria-live="polite"></div>
+    <div class="grid" id="grid"></div>
+  </div>
+</main>
+
+<dialog id="dlg" aria-labelledby="dName">
+  <button class="close" id="dClose" aria-label="Cerrar">×</button>
+  <div class="sheet">
+    <div class="gal">
+      <div class="main"><img id="dImg" alt=""></div>
+      <div class="thumbs" id="dThumbs"></div>
+    </div>
+    <div class="det">
+      <span class="code" id="dCode"></span>
+      <h2 id="dName"></h2>
+      <dl id="dList"></dl>
+      <p id="dDesc"></p>
+      <div class="price" id="dPrice"></div>
+      <a class="btn-wa" id="dWa" href="#" target="_blank" rel="noopener" style="align-self:flex-start">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2z"/></svg>
+        Pedir por WhatsApp</a>
+    </div>
+  </div>
+</dialog>
+
+<footer>
+  <div class="wrap">
+    <span>© MIAUMARKET · Precios en bolivianos (Bs.)</span>
+    <span>La Paz · Entregas en Cochabamba · Envíos nacionales previa coordinación y depósito</span>
+  </div>
+</footer>
+
+<script>
+/* ==== CONFIGURACIÓN ====
+   Escribe aquí el número de WhatsApp Business con código de país, solo dígitos.
+   Ejemplo: "59170000000". Mientras esté vacío, el botón abre WhatsApp para elegir el chat. */
+const WHATSAPP = "";
+const PRODUCTS = [{"c": "MM-001", "n": "Conjunto hoodie floral y top rosa", "m": "Kids", "t": "4T", "p": 140.0, "u": "", "s": "ropa", "d": "Conjunto de dos piezas para niña: hoodie estampado floral en tono crudo y top/falda en rosa palo con detalle fruncido. Tejido suave, ideal para looks casuales de entretiempo.", "det": false, "e": ""}, {"c": "MM-002", "n": "Buzo con capucha beige", "m": "Mondetta", "t": "L 14/16 y XS 5/6", "p": 80.0, "u": "por unidad", "s": "ropa", "d": "Buzo con capucha súper suave en jaspeado beige moteado, tejido tipo jersey ligero y transpirable, con bolsillo canguro. Confección de calidad con etiquetado original de fábrica.", "det": true, "e": ""}, {"c": "MM-003", "n": "Pijama perrito snowboarder", "m": "Cat & Jack", "t": "S 6/7", "p": 90.0, "u": "", "s": "ropa", "d": "Pijama de dos piezas para niño: playera de manga larga con estampado de perrito snowboarder y pantalón con print geométrico azul. Tela suave para dormir con estilo.", "det": false, "e": ""}, {"c": "MM-004", "n": "Conjunto chaleco sherpa 3 piezas", "m": "Puma", "t": "4T", "p": 270.0, "u": "", "s": "ropa", "d": "Conjunto abrigado de tres piezas: chaleco sherpa color crudo con panel rosa, camiseta térmica gris de manga larga y jogger rosa a juego. Perfecto para días fríos.", "det": true, "e": ""}, {"c": "MM-005", "n": "Buzo con capucha celeste", "m": "Quiksilver", "t": "L", "p": 50.0, "u": "", "s": "ropa", "d": "Buzo con capucha en color celeste, tejido polar interior cálido y bolsillo canguro frontal. Diseño deportivo casual con logo bordado.", "det": true, "e": ""}, {"c": "MM-006", "n": "Conjunto deportivo dinosaurio 4 piezas", "m": "Kids Club", "t": "4T", "p": 200.0, "u": "", "s": "ropa", "d": "Conjunto deportivo de 4 piezas para niño en bloques de color azul marino, coral y celeste con estampado de dinosaurio. Pantalón jogger a juego en gris y azul.", "det": true, "e": ""}, {"c": "MM-007", "n": "Vestido de fiesta de tul pastel", "m": "Jona Michelle", "t": "4T", "p": 130.0, "u": "", "s": "ropa", "d": "Vestido de fiesta con falda de tul en tonos pastel degradados, mangas con volante y moño decorativo en la cintura. Ideal para ocasiones especiales.", "det": true, "e": ""}, {"c": "MM-008", "n": "Conjunto deportivo gris 4 piezas", "m": "KIDS", "t": "3T", "p": 200.0, "u": "", "s": "ropa", "d": "Conjunto deportivo de 4 piezas en gris jaspeado con franja mostaza y azul. Set completo de sudadera y pantalón jogger, tejido suave tipo french terry.", "det": true, "e": ""}, {"c": "MM-009", "n": "Enterizo con capucha Bluey", "m": "Bluey (licencia oficial)", "t": "4T", "p": 170.0, "u": "", "s": "ropa", "d": "Enterizo con capucha forrada, estampado de personajes Bluey y flores sobre fondo rosa. Bolsillo canguro y cierre frontal, ideal para el día a día de las más pequeñas.", "det": true, "e": ""}, {"c": "MM-010", "n": "Pack 2 pantalones escolares kaki", "m": "French Toast", "t": "6 (pack x2)", "p": 100.0, "u": "", "s": "ropa", "d": "Pack de dos pantalones escolares color kaki, corte recto, tela stretch de fácil cuidado y cintura ajustable. Ideal para uniforme escolar.", "det": true, "e": ""}, {"c": "MM-011", "n": "Buzo con capucha forrado", "m": "Disney", "t": "7 años", "p": 120.0, "u": "", "s": "ropa", "d": "Buzo con capucha en celeste con estampado geométrico sutil, forro interior de peluche rosa suave para máximo abrigo.", "det": false, "e": ""}, {"c": "MM-012", "n": "Conjunto deportivo rosa Champion", "m": "Champion", "t": "4T", "p": 140.0, "u": "", "s": "ropa", "d": "Conjunto deportivo en rosa suave, hoodie y jogger con logo Champion estampado. Tejido de algodón perchado, cómodo y resistente.", "det": false, "e": ""}, {"c": "MM-013", "n": "Pack 2 leggings forrados en polar", "m": "Tuff Athletics", "t": "M 10/12", "p": 140.0, "u": "", "s": "ropa", "d": "Pack de 2 leggings forrados en polar, colores azul marino y rosa palo. Cintura elástica cómoda, ideales para clima frío.", "det": true, "e": ""}, {"c": "MM-014", "n": "Pack 2 leggings básicos", "m": "Pekkle", "t": "5", "p": null, "u": "", "s": "ropa", "d": "Pack de 2 leggings básicos en rosa y azul grisáceo. Tela stretch de uso diario, versátiles para combinar con cualquier outfit.", "det": true, "e": ""}, {"c": "MM-015", "n": "Pijama Spider-Man", "m": "Marvel", "t": "6T", "p": 100.0, "u": "", "s": "ropa", "d": "Pijama de 2 piezas: body/mameluco de manga larga con diseño de Spider-Man en rojo y negro. Licencia oficial Marvel, tejido suave.", "det": true, "e": ""}, {"c": "MM-016", "n": "Pantalón jogger deportivo", "m": "Hurley", "t": "L y XL", "p": 60.0, "u": "por unidad", "s": "ropa", "d": "Pantalón deportivo jogger disponible en gris y celeste, tejido técnico ligero con logo Hurley. Ideal para entrenamiento o uso casual.", "det": true, "e": ""}, {"c": "MM-017", "n": "Vestido de fiesta celeste", "m": "Jona Michelle", "t": "10", "p": 160.0, "u": "", "s": "ropa", "d": "Vestido de fiesta en celeste con falda de tul voluminosa y capa interior en peluche suave. Corte elegante para eventos especiales.", "det": false, "e": ""}, {"c": "MM-018", "n": "Pantalón de nieve con tirantes", "m": "Gerry", "t": "7-8 años", "p": 110.0, "u": "", "s": "ropa", "d": "Pantalón de nieve de alto rendimiento con tirantes removibles, color gris con cierre celeste. Tejido resistente al agua para actividades de invierno.", "det": true, "e": ""}, {"c": "MM-019", "n": "Pijama a cuadros escocés", "m": "Eddie Bauer", "t": "M, XXL y XS 5/6", "p": 110.0, "u": "por unidad", "s": "ropa", "d": "Pijama de dos piezas en rojo y negro con estampado de cuadros escocés y aplique de oso. Playera de manga larga y pantalón a juego, tejido suave y cálido.", "det": true, "e": ""}, {"c": "MM-020", "n": "Vestido floral manga larga", "m": "Janie and Jack", "t": "6/10", "p": 130.0, "u": "", "s": "ropa", "d": "Vestido de manga larga con estampado floral de rosas sobre fondo blanco, falda amplia con vuelo. Elegante y versátil para cualquier ocasión.", "det": false, "e": ""}, {"c": "MM-021", "n": "Pantalón de nieve stretch", "m": "Gerry", "t": "S 7/8", "p": 130.0, "u": "", "s": "ropa", "d": "Pantalón de nieve stretch en gris oscuro con cierre rosa y detalles reflectantes. Resistente y cómodo para deportes de invierno.", "det": true, "e": ""}, {"c": "MM-022", "n": "Pack 2 leggings flare", "m": "32 Degrees Heat", "t": "S 7/8", "p": 130.0, "u": "", "s": "ropa", "d": "Pack de 2 leggings tipo flare (acampanados) en malva y azul marino. Tejido térmico suave, ideales para uso diario en clima fresco.", "det": true, "e": ""}, {"c": "MM-023", "n": "Leggings estampado floral", "m": "Cat & Jack", "t": "6 a 24 meses / 2 a 6 años", "p": 40.0, "u": "", "s": "ropa", "d": "Lote de leggings infantiles con estampado floral en tono crudo, tejido acanalado suave. Disponibles en varias tallas.", "det": false, "e": ""}, {"c": "MM-025", "n": "Sudadera osito vaquero", "m": "ZOE+LIV", "t": "L", "p": 40.0, "u": "", "s": "ropa", "d": "Chompa/sudadera (también sirve como pijama) en tono crudo con estampado de osito vaquero y texto \"Country Music\". Tejido perchado abrigado, ideal para uso casual.", "det": true, "e": ""}, {"c": "MM-026", "n": "Calcetines tobilleros pastel", "m": "Cat & Jack", "t": "JUVENIL", "p": 120.0, "u": "por docena", "s": "ropa", "d": "Pack de 10 pares de calcetines tobilleros en tonos pastel (durazno, menta, lila, celeste). Tejido ligero y transpirable de uso diario.", "det": true, "e": ""}, {"c": "MM-027", "n": "Buzo con capucha Hello Kitty", "m": "HELLO KITTY", "t": "4-10 AÑOS", "p": 200.0, "u": "", "s": "ropa", "d": "Buzo con capucha estampado de Hello Kitty en rosa, forro interior de peluche blanco cálido. Licencia oficial Sanrio.", "det": true, "e": ""}, {"c": "MM-028", "n": "Conjunto bebé corazones", "m": "Carter's", "t": "6 meses", "p": 180.0, "u": "", "s": "ropa", "d": "Conjunto de dos piezas para bebé: body con estampado de corazones en crudo y leggings a juego en gris y rosa a rayas. Algodón suave para el día a día.", "det": false, "e": ""}, {"c": "MM-029", "n": "Set surtido de ropa interior", "m": "Cat & Jack / Hello Kitty / Ilana", "t": "2, 3 y 4 años", "p": 120.0, "u": "", "s": "ropa", "d": "Set surtido de ropa interior infantil: packs de calzones Cat & Jack, Hello Kitty y Ilana Pure Comfort en distintos estampados y tallas.", "det": false, "e": ""}, {"c": "MM-030", "n": "Snowsuit tie-dye 2 piezas", "m": "Spyder", "t": "5", "p": 220.0, "u": "", "s": "ropa", "d": "Snowsuit de 2 piezas (chaqueta con capucha de peluche + peto/pantalón) en estampado tie-dye lila y rosa. Exterior resistente al agua, forro cálido para nieve.", "det": false, "e": ""}, {"c": "MM-031", "n": "Conjunto Spider-Man 2 piezas", "m": "Marvel", "t": "2T", "p": 150.0, "u": "", "s": "ropa", "d": "Conjunto de dos piezas de Spider-Man: playera roja de manga larga y jogger azul con estampado de arañas y el héroe. Licencia oficial Marvel.", "det": true, "e": ""}, {"c": "MM-032", "n": "Set de pijamas 4 piezas", "m": "Saint Eve Kids", "t": "2T", "p": 150.0, "u": "", "s": "ropa", "d": "Set de pijamas infantiles (4 piezas): uno a cuadros vichy verde y blanco, otro con estampado espacial azul marino (cohetes y planetas). Tejido térmico acanalado.", "det": false, "e": ""}, {"c": "MM-033", "n": "Set de enterizos para bebé", "m": "Disney", "t": "6 y 18 meses", "p": 120.0, "u": "", "s": "ropa", "d": "Set de enterizos/pijamas para bebé: estampado de oseznos sobre menta, astronautas \"PLAY\" sobre blanco y flores con pollitos sobre menta. Tejido suave con pies cerrados.", "det": false, "e": ""}, {"c": "MM-034", "n": "Pijama térmico navideño", "m": "32 Degrees Heat", "t": "S, M y XL", "p": 100.0, "u": "", "s": "ropa", "d": "Pijama térmico de 2 piezas (top manga larga + legging) en azul marino con estampados navideños. Tejido térmico afelpado, disponible en varias tallas.", "det": true, "e": ""}, {"c": "MM-035", "n": "Pack 2 joggers juveniles", "m": "Lee", "t": "M 10/12 y S 7/8", "p": 120.0, "u": "por pack", "s": "ropa", "d": "Pack de 2 joggers juveniles en verde olivo y gris azulado, cintura elástica con cordón ajustable. Tejido resistente ideal para uso diario.", "det": true, "e": ""}, {"c": "MM-036", "n": "Vestido de fiesta beige rosado", "m": "Jona Michelle", "t": "12", "p": 150.0, "u": "", "s": "ropa", "d": "Vestido de fiesta en tono beige rosado con brillos y falda de tul, moño decorativo en la cintura. Tela satinada con acabado elegante.", "det": false, "e": ""}, {"c": "MM-037", "n": "Vestido de rayas con estrella", "m": "Zunie", "t": "5", "p": 120.0, "u": "", "s": "ropa", "d": "Vestido de rayas blanco y lila con aplique de estrella dorada de lentejuelas y falda de tul plisada. Diseño festivo y llamativo.", "det": false, "e": ""}, {"c": "MM-038", "n": "Conjunto deportivo rosa palo", "m": "Adidas", "t": "6", "p": 250.0, "u": "", "s": "ropa", "d": "Conjunto deportivo en rosa palo con franjas blancas, hoodie y jogger a juego. Tejido técnico ligero con logo Adidas.", "det": true, "e": ""}, {"c": "MM-039", "n": "Conjunto deportivo 3 piezas", "m": "Pekkle", "t": "6 años", "p": 140.0, "u": "", "s": "ropa", "d": "Conjunto deportivo de tres piezas para niña: chaqueta con capucha en coral y dos joggers en durazno y azul. Tejido suave y cómodo para el día a día.", "det": false, "e": ""}, {"c": "MM-040", "n": "Conjunto deportivo rosa 2 piezas", "m": "Adidas", "t": "7 años", "p": 250.0, "u": "", "s": "ropa", "d": "Conjunto deportivo de dos piezas en rosa con franjas azul marino: chaqueta con capucha y jogger a juego.", "det": false, "e": ""}, {"c": "MM-041", "n": "Pijama enterizo Papá Noel", "m": "Pekkle", "t": "5T", "p": 120.0, "u": "", "s": "ropa", "d": "Pijama enterizo de manga larga en gris jaspeado con estampado de Papá Noel. Tejido suave y abrigado, ideal para la temporada navideña.", "det": true, "e": ""}, {"c": "MM-042", "n": "Conjunto jardinero floral", "m": "Little Me", "t": "24 meses", "p": 120.0, "u": "", "s": "ropa", "d": "Conjunto de dos piezas: jardinero con estampado floral rojo sobre fondo crudo y volantes en los hombros, con polera roja de manga larga. Corte holgado y cómodo.", "det": false, "e": ""}, {"c": "MM-043", "n": "Buzo con capucha leopardo", "m": "DEF LEPPARD", "t": "S 7/8", "p": 60.0, "u": "", "s": "ropa", "d": "Buzo con capucha en verde salvia con estampado gráfico de leopardo. Cierre frontal completo, tejido de algodón perchado.", "det": true, "e": ""}, {"c": "MM-044", "n": "Pantalón cargo juvenil kaki", "m": "Levi's", "t": "12 (Youth)", "p": 50.0, "u": "", "s": "ropa", "d": "Pantalón cargo juvenil color kaki. Según etiqueta: cintura elástica tipo pull-on, tela stretch y pierna ajustada (tapered). Bolsillo cargo lateral.", "det": true, "e": ""}, {"c": "MM-045", "n": "Conjunto buzo y jogger guinda", "m": "Mondetta", "t": "XS 5/6", "p": 60.0, "u": "", "s": "ropa", "d": "Conjunto de buzo con capucha y pantalón jogger en color guinda jaspeado.", "det": true, "e": ""}, {"c": "MM-046", "n": "Set de 4 piezas para niña", "m": "Koala Kids", "t": "18 meses", "p": 200.0, "u": "", "s": "ropa", "d": "Set de 4 piezas para niña (según empaque): sudadera rosada con carita bordada, polera lila de manga larga con volantes en los hombros y leggings.", "det": true, "e": ""}, {"c": "MM-047", "n": "Buzo con capucha rosa pálido", "m": "Adidas", "t": "L 14/16", "p": 80.0, "u": "", "s": "ropa", "d": "Buzo con capucha juvenil en tono rosa pálido, logo Adidas al frente y bolsillo canguro.", "det": true, "e": ""}, {"c": "MM-048", "n": "Pijama Mickey para hombre", "m": "Disney", "t": "L (hombre)", "p": 80.0, "u": "", "s": "ropa", "d": "Pijama de 2 piezas para hombre, línea Family Sleep: camisa con botones y cuello, estampado navideño de Mickey y sus amigos sobre fondo crudo.", "det": true, "e": ""}, {"c": "MM-049", "n": "Pantalón jogger negro", "m": "Blu Rock New York", "t": "S", "p": 50.0, "u": "", "s": "ropa", "d": "Pantalón jogger negro con cintura elástica, cordón ajustable y puños en los tobillos.", "det": true, "e": ""}, {"c": "MM-050", "n": "Pijama \"Let it Snow\"", "m": "Eddie Bauer Kids", "t": "XS 5/6", "p": 80.0, "u": "", "s": "ropa", "d": "Pijama de 2 piezas: polera gris con estampado \"Let it Snow\" y pantalón con estampado de bosque invernal.", "det": true, "e": ""}, {"c": "MM-051", "n": "Jogger juvenil gris", "m": "GAP", "t": "S 7/8", "p": 60.0, "u": "por unidad", "s": "ropa", "d": "Jogger juvenil en gris claro jaspeado con logo GAP bordado, cintura elástica y bolsillo lateral.", "det": true, "e": ""}, {"c": "MM-052", "n": "Bata con capucha tiburones", "m": "CARTER", "t": "0-9 MESES", "p": 120.0, "u": "", "s": "ropa", "d": "Bata con capucha en color blanco con estampado de tiburones celestes y forro de capucha a rayas.", "det": true, "e": ""}, {"c": "MM-053", "n": "Chompa navideña Snoopy", "m": "PEANUTS", "t": "M 10/12", "p": 60.0, "u": "por unidad", "s": "ropa", "d": "Chompa de punto en color crudo con diseño navideño de Snoopy y Woodstock, cuello y puños a rayas azul marino.", "det": true, "e": ""}, {"c": "MM-054", "n": "Set de 2 pijamas", "m": "Saint Eve Kids", "t": "2T", "p": 120.0, "u": "", "s": "ropa", "d": "Set de 2 pijamas (polera de manga larga + short): uno lila con unicornios y copos de nieve, otro con grecas en rosa y celeste. 95% poliéster, 5% spandex.", "det": true, "e": ""}, {"c": "MM-055", "n": "Pack 7 calzoncillos", "m": "Cat & Jack", "t": "2T/3T, 4T y 6", "p": 80.0, "u": "por pack", "s": "ropa", "d": "Pack de 7 calzoncillos tipo brief para niño, con estampados de autos y días de la semana.", "det": true, "e": ""}, {"c": "MM-056", "n": "Set navideño pijama y vincha", "m": "Art Class", "t": "XXL/L/M", "p": 60.0, "u": "", "s": "ropa", "d": "Set navideño de 3 piezas (según empaque): pijama de manga larga con vincha tipo spa. Varios diseños y colores.", "det": true, "e": ""}, {"c": "MM-057", "n": "Camiseta New York Giants", "m": "NFL Team Apparel", "t": "2-3T", "p": 50.0, "u": "", "s": "ropa", "d": "Camiseta de fútbol americano de los New York Giants, número 1, en azul con detalles blancos.", "det": true, "e": ""}, {"c": "MM-058", "n": "Short deportivo", "m": "All in Motion", "t": "L y XL", "p": 60.0, "u": "", "s": "ropa", "d": "Short deportivo con cintura elástica, cordón y bolsillos laterales. Varios colores: azul petróleo, gris y crudo.", "det": true, "e": ""}, {"c": "MM-059", "n": "Polerón cuello redondo", "m": "All in Motion", "t": "L y XXL", "p": 90.0, "u": "", "s": "ropa", "d": "Polerón de cuello redondo con interior afelpado, en gris jaspeado y gris oscuro. 54% algodón, 46% poliéster reciclado (según etiqueta).", "det": true, "e": ""}, {"c": "MM-076", "n": "Zapatillas urbanas blanco y crema", "m": "Adidas", "t": "48", "p": 450.0, "u": "", "s": "calzado", "d": "Zapatillas urbanas en blanco y crema con tres franjas grises y suela color caramelo.", "det": true, "e": ""}, {"c": "MM-079", "n": "Zapatillas gris oscuro", "m": "Adidas", "t": "39 1/2", "p": 450.0, "u": "", "s": "calzado", "d": "Zapatillas en gris oscuro con suela blanca y planta en tonos naranja y gris.", "det": true, "e": ""}, {"c": "MM-080", "n": "Zapatillas running blancas", "m": "Adidas", "t": "40", "p": 450.0, "u": "", "s": "calzado", "d": "Zapatillas running blancas con tres franjas negras y suela blanca.", "det": true, "e": ""}, {"c": "MM-081", "n": "Zapatillas de entrenamiento", "m": "Adidas", "t": "47", "p": 450.0, "u": "", "s": "calzado", "d": "Zapatillas de entrenamiento en gris oscuro con franjas blancas y suela negra con relieve de tracción.", "det": true, "e": ""}, {"c": "MM-082", "n": "Zapatillas running negras", "m": "Adidas", "t": "48", "p": 450.0, "u": "", "s": "calzado", "d": "Zapatillas running en negro con suela blanca y detalles naranja; plantilla estampada. Con etiqueta.", "det": true, "e": ""}, {"c": "MM-083", "n": "Zapatillas retro rojas", "m": "Adidas", "t": "44", "p": 450.0, "u": "", "s": "calzado", "d": "Zapatillas retro en rojo con franjas azul turquesa, puntera crema y suela color caramelo. Con etiqueta.", "det": true, "e": ""}, {"c": "MM-084", "n": "Zapatillas de suela gruesa", "m": "Adidas", "t": "37 1/2", "p": 450.0, "u": "", "s": "calzado", "d": "Zapatillas de suela gruesa en crema con detalles rojos y turquesa; suela roja y negra.", "det": true, "e": ""}, {"c": "MM-085", "n": "Zapatillas estilo básquet", "m": "Adidas", "t": "43 1/2", "p": 450.0, "u": "", "s": "calzado", "d": "Zapatillas estilo básquet en negro con capellada coral y tres franjas blancas.", "det": true, "e": ""}, {"c": "MM-086", "n": "Zapatillas running verde neón", "m": "Adidas", "t": "45 1/2", "p": 450.0, "u": "", "s": "calzado", "d": "Zapatillas running en gris oscuro con franjas verde neón y suela con detalles verdes y amarillos.", "det": true, "e": ""}, {"c": "MM-087", "n": "Zapatillas running gris oscuro", "m": "Adidas", "t": "37", "p": 450.0, "u": "", "s": "calzado", "d": "Zapatillas running en gris oscuro con franjas blancas y suela blanca.", "det": true, "e": ""}, {"c": "MM-088", "n": "Zapatillas caña media", "m": "Adidas", "t": "37", "p": 450.0, "u": "", "s": "calzado", "d": "Zapatillas de caña media en blanco y beige con detalles rosados y celestes.", "det": true, "e": ""}, {"c": "MM-089", "n": "Zapatillas urbanas blancas", "m": "Adidas", "t": "35 1/2", "p": 450.0, "u": "", "s": "calzado", "d": "Zapatillas urbanas blancas con suela de goma color caramelo.", "det": true, "e": ""}, {"c": "MM-090", "n": "Zapatillas blancas franjas grises", "m": "Adidas", "t": "41 1/2 - 41 - 41 1/2", "p": 450.0, "u": "", "s": "calzado", "d": "Zapatillas blancas con tres franjas grises y suela blanca.", "det": true, "e": ""}, {"c": "MM-091", "n": "Zapatillas knit beige", "m": "Adidas", "t": "42", "p": 450.0, "u": "", "s": "calzado", "d": "Zapatillas de tejido tipo knit en beige claro con suela blanca.", "det": true, "e": ""}, {"c": "MM-092", "n": "Zapatillas blanco y gris", "m": "Adidas", "t": "41 1/2", "p": 450.0, "u": "", "s": "calzado", "d": "Zapatillas en blanco y gris claro con franjas grises y suela blanca.", "det": true, "e": ""}, {"c": "MM-060", "n": "Botines negros", "m": "Cat & Jack", "t": "22, 24, 27, 28, 32, 34 y 35", "p": 100.0, "u": "", "s": "calzado", "d": "Botines negros para niño/a con cierre lateral, elástico y tirador en el talón. Tallas de la etiqueta (US): 6, 8, 10, 11, 1, 2 y 3.", "det": true, "e": ""}, {"c": "MM-061", "n": "Gorro y botitas My First Chuck", "m": "Converse", "t": "0-6 meses", "p": 80.0, "u": "", "s": "calzado", "d": "Set \"My First Chuck\": gorro y botitas para bebé con el clásico logo de estrella. En caja de regalo. Colores rojo y rosado.", "det": true, "e": ""}, {"c": "MM-024", "n": "Mochila mini amarilla", "m": "Cat & Jack", "t": "Mini (20 cm)", "p": 50.0, "u": "", "s": "accesorios", "d": "Mochila infantil mini en amarillo mostaza con detalles celestes, textura acolchada con estampado sutil. Tirantes ajustables y bolsillos laterales de malla.", "det": false, "e": ""}, {"c": "MM-062", "n": "Lentes de sol infantiles UV", "m": "Cat & Jack", "t": "Niños 3+ años", "p": 60.0, "u": "", "s": "accesorios", "d": "Lentes de sol infantiles con protección UV 100%. Modelos con marco azul y marco negro.", "det": true, "e": ""}, {"c": "MM-063", "n": "Set de dibujo en grafito 18 piezas", "m": "Prismacolor Premier", "t": "Set de 18 piezas", "p": 150.0, "u": "", "s": "accesorios", "d": "Set de dibujo en grafito: 7 lápices Turquoise (8B a 6H), 4 de grafito sin madera, 3 de grafito acuarelable, 2 borradores, 1 tajador metálico y 1 lija. Estuche metálico.", "det": true, "e": ""}, {"c": "MM-064", "n": "Kit pinta tu juego de té", "m": "Mondo Llama", "t": "4+ años", "p": 60.0, "u": "", "s": "accesorios", "d": "Kit para pintar tu propio juego de té de madera. Incluye pinturas, pincel y stickers (según la caja).", "det": true, "e": ""}, {"c": "MM-065", "n": "Juego de sábanas 1000 hilos", "m": "Milano Collection", "t": "Queen y King", "p": 150.0, "u": "", "s": "accesorios", "d": "Juego de sábanas blancas de 1000 hilos, 100% algodón egipcio (según empaque).", "det": true, "e": ""}, {"c": "MM-066", "n": "Juego de sábanas gris", "m": "Target", "t": "Queen", "p": 150.0, "u": "", "s": "accesorios", "d": "Juego de sábanas color gris: sábana plana, sábana ajustable y 2 fundas de almohada estándar (según etiqueta).", "det": true, "e": ""}, {"c": "MM-067", "n": "Edredón tie-dye rosado", "m": "Uozzi Bedding", "t": "QUEEN", "p": 250.0, "u": "", "s": "accesorios", "d": "Edredón en tonos pastel (rosado tie-dye), en bolsa de presentación con cierre.", "det": true, "e": ""}, {"c": "MM-068", "n": "Ositos de peluche", "m": "Gigglescape", "t": "1+ años", "p": 50.0, "u": "", "s": "accesorios", "d": "Ositos de peluche suaves con pañuelo al cuello, en tonos café, rosado y blanco.", "det": true, "e": ""}, {"c": "MM-069", "n": "Sets de cinturones delgados", "m": "ART", "t": "XL/L", "p": 50.0, "u": "por set", "s": "accesorios", "d": "Sets de cinturones delgados para niña en colores metalizados, glitter y rosado.", "det": true, "e": ""}, {"c": "MM-071", "n": "Lanzador de burbujas", "m": "Sun Squad", "t": "3+ años", "p": 80.0, "u": "", "s": "accesorios", "d": "Lanzador de burbujas Mini Extreme Bubble Blaster con solución de 4 fl oz (118,2 ml) y pilas. Colores verde y rosado.", "det": true, "e": ""}, {"c": "MM-072", "n": "Contenedores metálicos con tapa de madera", "m": "ART", "t": "3 tamaños", "p": 150.0, "u": "por juego", "s": "accesorios", "d": "Set de contenedores metálicos blancos con tapa de madera para organizar.", "det": true, "e": ""}, {"c": "MM-073", "n": "Canguros con correa ajustable", "m": "Art Class / Cat & Jack", "t": "JUVENIL", "p": 60.0, "u": "", "s": "accesorios", "d": "Canguros con correa ajustable: rojo, plateado metalizado y verde agua acolchado.", "det": true, "e": ""}, {"c": "MM-074", "n": "Neceser lila con cisnes", "m": "ART", "t": "JUVENIL", "p": 60.0, "u": "", "s": "accesorios", "d": "Neceser lila con aplique de cisnes y volantes, cierre con tirador.", "det": true, "e": ""}];
+/* ======================= */
+
+const SECTIONS=[["todo","Todo"],["ropa","Ropa"],["calzado","Calzado"],["accesorios","Accesorios y varios"]];
+const fmt=n=>n==null?null:n.toLocaleString("es-BO",{minimumFractionDigits:2,maximumFractionDigits:2});
+const priceTxt=p=>p.p==null?"Consultar precio":`Bs. ${fmt(p.p)}`;
+function waLink(text){const t=encodeURIComponent(text);return WHATSAPP?`https://wa.me/${WHATSAPP}?text=${t}`:`https://wa.me/?text=${t}`;}
+function msg(p){return `Hola MIAUMARKET, me interesa el producto ${p.c}: ${p.n}${p.m?" ("+p.m+")":""}${p.t?", talla "+p.t:""}${p.p!=null?", Bs. "+fmt(p.p)+(p.u?" "+p.u:""):""}. ¿Está disponible?`;}
+function msgSold(p){return `Hola MIAUMARKET, vi que el producto ${p.c} (${p.n}) ya se vendió. ¿Tienen algo similar${p.t?" en talla "+p.t:""}?`;}
+document.getElementById("waTop").href=waLink("Hola MIAUMARKET, quiero información sobre sus productos.");
+
+let sec="todo"; try{const h=location.hash.slice(1); if(SECTIONS.some(s=>s[0]===h)) sec=h;}catch(e){}
+const chips=document.getElementById("chips"), grid=document.getElementById("grid"), q=document.getElementById("q"), count=document.getElementById("count");
+function renderChips(){
+  chips.innerHTML="";
+  for(const [id,label] of SECTIONS){
+    const n=id==="todo"?PRODUCTS.length:PRODUCTS.filter(p=>p.s===id).length;
+    const b=document.createElement("button"); b.className="chip"; b.type="button"; b.setAttribute("aria-pressed",String(id===sec));
+    b.innerHTML=`${label}<span class="ct">${n}</span>`;
+    b.onclick=()=>{sec=id; try{history.replaceState(null,"",id==="todo"?location.pathname:"#"+id);}catch(e){} renderChips(); render();};
+    chips.appendChild(b);
+  }
+}
+const norm=s=>(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+function render(){
+  const term=norm(q.value.trim());
+  const rank=p=>p.e==="vendido"?1:0;
+  const list=PRODUCTS.filter(p=>(sec==="todo"||p.s===sec)&&(!term||norm([p.c,p.n,p.m,p.t,p.d].join(" ")).includes(term))).sort((a,b)=>rank(a)-rank(b));
+  count.textContent=`${list.length} producto${list.length===1?"":"s"}`;
+  grid.innerHTML=list.length?"":`<div class="empty">No encontramos productos con «${esc(q.value)}». Prueba con otra palabra o escríbenos por WhatsApp.</div>`;
+  for(const p of list){
+    const el=document.createElement("article"); el.className="card"+(p.e==="vendido"?" is-vendido":"");
+    const tag=p.e==="vendido"?`<span class="tag vendido">VENDIDO</span>`:p.e==="reservado"?`<span class="tag reservado">RESERVADO</span>`:"";
+    el.innerHTML=`<button class="open" type="button" aria-label="Ver detalle de ${esc(p.n)}">
+        <span class="ph">${tag}<img src="img/${p.c}.jpg" alt="${esc(p.n)}" loading="lazy" width="720" height="720"></span></button>
+      <div class="info"><span class="code">${p.c}</span><h3 class="name">${esc(p.n)}</h3>
+        <div class="meta">${p.m?`<span>${esc(p.m)}</span>`:""}${p.t?`<span>Talla ${esc(p.t)}</span>`:""}</div>
+        <div class="price">${priceTxt(p)}${p.p!=null&&p.u?`<small>${esc(p.u)}</small>`:""}</div></div>
+      ${p.e==="vendido"
+        ?`<a class="btn-wa btn-ghost" href="${waLink(msgSold(p))}" target="_blank" rel="noopener"><span>Consultar<span class="lbl-long"> similar</span></span></a>`
+        :`<a class="btn-wa" href="${waLink(msg(p))}" target="_blank" rel="noopener"><span>Pedir<span class="lbl-long"> por WhatsApp</span></span></a>`}`;
+    el.querySelector("button.open").onclick=()=>openDetail(p);
+    grid.appendChild(el);
+  }
+}
+const dlg=document.getElementById("dlg");
+function openDetail(p){
+  document.getElementById("dCode").textContent=p.c;
+  document.getElementById("dName").textContent=p.n;
+  document.getElementById("dDesc").textContent=p.d;
+  document.getElementById("dPrice").innerHTML=priceTxt(p)+(p.p!=null&&p.u?`<small>${esc(p.u)}</small>`:"");
+  const rows=[["Marca",p.m],["Talla",p.t],["Código",p.c]].filter(r=>r[1]);
+  document.getElementById("dList").innerHTML=rows.map(r=>`<dt>${r[0]}</dt><dd>${esc(r[1])}</dd>`).join("");
+  const dWa=document.getElementById("dWa"); const sold=p.e==="vendido";
+  dWa.href=waLink(sold?msgSold(p):msg(p)); dWa.lastChild.textContent=sold?" Consultar similar":" Pedir por WhatsApp";
+  dWa.classList.toggle("btn-ghost",sold);
+  if(p.e) document.getElementById("dCode").textContent=p.c+" · "+p.e.toUpperCase();
+  const imgs=[`img/${p.c}.jpg`].concat(p.det?[`img/${p.c}_d.jpg`]:[]);
+  const main=document.getElementById("dImg"); main.src=imgs[0]; main.alt=p.n;
+  const th=document.getElementById("dThumbs"); th.innerHTML="";
+  if(imgs.length>1) imgs.forEach((src,i)=>{const b=document.createElement("button"); b.type="button"; b.setAttribute("aria-label",i?"Ver detalle":"Ver foto principal");
+    b.setAttribute("aria-current",String(i===0)); b.innerHTML=`<img src="${src}" alt="">`;
+    b.onclick=()=>{main.src=src; th.querySelectorAll("button").forEach(x=>x.setAttribute("aria-current",String(x===b)));}; th.appendChild(b);});
+  if(typeof dlg.showModal==="function") dlg.showModal(); else dlg.setAttribute("open","");
+}
+document.getElementById("dClose").onclick=()=>dlg.close();
+dlg.addEventListener("click",e=>{if(e.target===dlg) dlg.close();});
+q.addEventListener("input",render);
+window.addEventListener("hashchange",()=>{const h=location.hash.slice(1); if(SECTIONS.some(s=>s[0]===h)){sec=h; renderChips(); render();}});
+renderChips(); render();
+</script>
+
+</body>
+</html>
