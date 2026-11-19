@@ -13,7 +13,7 @@ for sid, sname in SEC:
         name = p['n'] + (f" – {p['m']}" if p['m'] else '')
         desc = p['d'] + (f"\nTalla: {p['t']}" if p['t'] else '') + (f"\nPrecio {p['u']}" if p['u'] else '') + f"\nCódigo: {p['c']}"
         price = ((str(int(p['p'])) if p['p'] == int(p['p']) else f"{p['p']:.2f}") if p['p'] is not None else '')
-        fields = [('Nombre', name), ('Precio', price), ('Descripción', desc), ('Enlace', WEB), ('Código de artículo', p['c'])]
+        fields = [('Nombre', name), ('Precio', price), ('Descripción', desc), ('Código de artículo', p['c'])]
         rows = ''.join(
             f'<div class="f"><span class="k">{k}</span><span class="v">{html.escape(v) if v else "<em>— sin precio, dejar vacío —</em>"}</span>'
             + (f'<button type="button" data-copy="{html.escape(v, quote=True)}">Copiar</button>' if v else '') + '</div>'
@@ -49,7 +49,7 @@ h2{{font:600 19px Georgia,serif;margin:22px 0 10px}}h2 small{{font:400 13px syst
 <div class="help"><b>Cómo cargar cada producto (desde el celular):</b><ol>
 <li>Toca <b>Guardar foto</b> para bajar la imagen a tu galería.</li>
 <li>En WhatsApp Business: <b>Herramientas para la empresa → Catálogo → Añadir artículo nuevo</b>.</li>
-<li>Agrega la foto y pega cada campo con su botón <b>Copiar</b> (Nombre, Precio, Descripción, Enlace y Código de artículo).</li>
+<li>Agrega la foto y pega cada campo con su botón <b>Copiar</b> (Nombre, Precio, Descripción y Código de artículo). <b>Deja vacío el campo Enlace</b>: así el cliente pide desde el mismo WhatsApp con «Añadir al carrito» y no lo manda a la página.</li>
 <li>Guarda y marca <b>Cargado</b> aquí para no repetirlo.</li>
 <li>Al final crea las colecciones <b>Ropa</b>, <b>Calzado</b> y <b>Accesorios y varios</b> y asigna los productos.</li></ol></div>
 <div class="prog"><a href="#ropa">Ropa</a><a href="#calzado">Calzado</a><a href="#accesorios">Accesorios</a><b id="cnt"></b></div>
